@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ManufacturingOffice.AppHost/ManufacturingOffice.AppHost.csproj" />
+    <Project Path="src/ManufacturingOffice.Application/ManufacturingOffice.Application.csproj" />
+    <Project Path="src/ManufacturingOffice.Domain/ManufacturingOffice.Domain.csproj" />
+    <Project Path="src/ManufacturingOffice.Infrastructure/ManufacturingOffice.Infrastructure.csproj" />
+    <Project Path="src/ManufacturingOffice.ServiceDefaults/ManufacturingOffice.ServiceDefaults.csproj" />
+    <Project Path="src/ManufacturingOffice.Web/ManufacturingOffice.Web.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-container">
+    <div class="ribbon">
+        <a href="/" class="ribbon-brand">Manufacturing Office</a>
+        <div class="ribbon-tabs">
+            <a href="/" class="ribbon-tab">Dashboard</a>
+            <a href="/work-orders" class="ribbon-tab">Work Orders</a>
+            <a href="/inventory" class="ribbon-tab">Inventory</a>
+            <a href="/quality" class="ribbon-tab">Quality</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <nav class="nav-sidebar">
+            <a href="/" class="nav-item">Dashboard</a>
+            <a href="/work-orders" class="nav-item">Work Orders</a>
+            <a href="/inventory" class="nav-item">Inventory</a>
+            <a href="/quality" class="nav-item">Quality</a>
+        </nav>
+        
+        <main class="workspace">
+            @Body
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

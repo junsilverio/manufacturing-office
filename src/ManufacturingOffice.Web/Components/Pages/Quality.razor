@@ -1,0 +1,123 @@
+﻿@page "/quality"
+@rendermode InteractiveServer
+
+<PageTitle>Quality - Manufacturing Office</PageTitle>
+
+<h1>Quality Management</h1>
+<p>Non-conformance tracking and inspection outcomes</p>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Open NCRs</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-trend negative">↑ 1 from last week</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">Pass Rate</div>
+        <div class="kpi-value">98.5%</div>
+        <div class="kpi-trend positive">↑ 0.3%</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">Inspections Pending</div>
+        <div class="kpi-value">12</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">CAPAs Active</div>
+        <div class="kpi-value">2</div>
+    </div>
+</div>
+
+<div style="margin-bottom: 1.5rem;">
+    <button class="btn btn-primary">+ New Quality Event</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Schedule Inspection</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Reports</button>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Quality Events</div>
+    
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Event #</th>
+                <th>Work Order</th>
+                <th>Part Number</th>
+                <th>Status</th>
+                <th>Defect Category</th>
+                <th>Quantity Affected</th>
+                <th>Event Date</th>
+                <th>Inspector</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>QE-2026-001</strong></td>
+                <td>WO-2026-001</td>
+                <td>PART-100</td>
+                <td><span class="status-badge warning">Pending</span></td>
+                <td>Dimensional Variance</td>
+                <td>5</td>
+                <td>Jun 22, 2026</td>
+                <td>Sarah Johnson</td>
+            </tr>
+            <tr>
+                <td><strong>QE-2026-002</strong></td>
+                <td>WO-2026-003</td>
+                <td>PART-300</td>
+                <td><span class="status-badge success">Resolved</span></td>
+                <td>Visual Defect</td>
+                <td>2</td>
+                <td>Jun 20, 2026</td>
+                <td>Mike Chen</td>
+            </tr>
+            <tr>
+                <td><strong>QE-2026-003</strong></td>
+                <td>WO-2026-002</td>
+                <td>PART-200</td>
+                <td><span class="status-badge danger">On Hold</span></td>
+                <td>Material Contamination</td>
+                <td>10</td>
+                <td>Jun 19, 2026</td>
+                <td>Sarah Johnson</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-header">Defect Categories (Last 30 Days)</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Dimensional Variance</div>
+            <div style="color: var(--text-secondary);">8 incidents</div>
+        </div>
+        <div>
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Visual Defect</div>
+            <div style="color: var(--text-secondary);">5 incidents</div>
+        </div>
+        <div>
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Material Contamination</div>
+            <div style="color: var(--text-secondary);">3 incidents</div>
+        </div>
+        <div>
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Assembly Error</div>
+            <div style="color: var(--text-secondary);">2 incidents</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Inspection Queue</div>
+    <p style="color: var(--text-secondary);">12 items awaiting inspection</p>
+    <ul>
+        <li>WO-2026-004 - Gearbox Assembly - Scheduled: Jun 24, 2026</li>
+        <li>WO-2026-005 - Hydraulic Pump - Scheduled: Jun 24, 2026</li>
+        <li>WO-2026-006 - Control Board - Scheduled: Jun 25, 2026</li>
+    </ul>
+</div>
+
+@code {
+}

@@ -1,0 +1,137 @@
+﻿@page "/work-orders"
+@using ManufacturingOffice.Application.Interfaces
+@using ManufacturingOffice.Domain.Entities
+@using ManufacturingOffice.Domain.Enums
+@inject IWorkOrderRepository WorkOrderRepo
+@rendermode InteractiveServer
+
+<PageTitle>Work Orders - Manufacturing Office</PageTitle>
+
+<h1>Work Orders</h1>
+<p>Execution and tracking of production jobs</p>
+
+<div style="margin-bottom: 1.5rem;">
+    <button class="btn btn-primary">+ New Work Order</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Assign</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Split</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Export</button>
+</div>
+
+<div class="card">
+    @if (workOrders == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Part Number</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Quantity</th>
+                    <th>Progress</th>
+                    <th>Due Date</th>
+                    <th>Work Center</th>
+                    <th>Assigned To</th>
+                    <th>Material Ready</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in workOrders)
+                {
+                    <tr>
+                        <td><strong>@order.OrderNumber</strong></td>
+                        <td>@order.PartNumber</td>
+                        <td>@order.PartDescription</td>
+                        <td><span class="status-badge @GetStatusClass(order.Status)">@order.Status</span></td>
+                        <td><span class="@GetPriorityClass(order.Priority)">@order.Priority</span></td>
+                        <td>@order.Quantity</td>
+                        <td>
+                            <div>@order.CompletedQuantity / @order.Quantity</div>
+                            <div style="background-color: var(--background); height: 4px; border-radius: 2px; margin-top: 4px;">
+                                <div style="background-color: var(--primary); height: 100%; width: @(GetProgressPercentage(order))%; border-radius: 2px;"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>@order.DueDate.ToString("MMM dd, yyyy")</div>
+                            @if (order.DueDate < DateTime.Now && order.Status != WorkOrderStatus.Completed)
+                            {
+                                <div style="color: var(--danger); font-size: 0.75rem;">Overdue</div>
+                            }
+                        </td>
+                        <td>@order.WorkCenter</td>
+                        <td>@order.AssignedTo</td>
+                        <td>
+                            @if (order.MaterialReady)
+                            {
+                                <span class="status-badge success">✓ Ready</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge warning">⚠ Waiting</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(selectedOrderNotes))
+{
+    <div class="card" style="margin-top: 1rem;">
+        <div class="card-header">Notes</div>
+        <p>@selectedOrderNotes</p>
+    </div>
+}
+
+@code {
+    private IEnumerable<WorkOrder>? workOrders;
+    private string? selectedOrderNotes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        workOrders = await WorkOrderRepo.GetAllAsync();
+        var orderWithNotes = workOrders.FirstOrDefault(w => !string.IsNullOrEmpty(w.Notes));
+        if (orderWithNotes != null)
+        {
+            selectedOrderNotes = $"{orderWithNotes.OrderNumber}: {orderWithNotes.Notes}";
+        }
+    }
+
+    private string GetStatusClass(WorkOrderStatus status)
+    {
+        return status switch
+        {
+            WorkOrderStatus.Completed => "success",
+            WorkOrderStatus.InProgress => "info",
+            WorkOrderStatus.Paused => "warning",
+            WorkOrderStatus.Cancelled => "danger",
+            WorkOrderStatus.Released => "info",
+            WorkOrderStatus.Scheduled => "neutral",
+            _ => "neutral"
+        };
+    }
+
+    private string GetPriorityClass(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.Critical => "priority-critical",
+            Priority.High => "priority-high",
+            Priority.Low => "priority-low",
+            _ => "priority-normal"
+        };
+    }
+
+    private int GetProgressPercentage(WorkOrder order)
+    {
+        if (order.Quantity == 0) return 0;
+        return (int)((double)order.CompletedQuantity / order.Quantity * 100);
+    }
+}

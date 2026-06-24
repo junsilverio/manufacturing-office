@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ManufacturingOffice.Application\ManufacturingOffice.Application.csproj" />
+    <ProjectReference Include="..\ManufacturingOffice.Infrastructure\ManufacturingOffice.Infrastructure.csproj" />
+    <ProjectReference Include="..\ManufacturingOffice.ServiceDefaults\ManufacturingOffice.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+</Project>

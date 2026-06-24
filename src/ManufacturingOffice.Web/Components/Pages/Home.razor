@@ -1,0 +1,128 @@
+﻿@page "/"
+@using ManufacturingOffice.Application.Interfaces
+@using ManufacturingOffice.Domain.Entities
+@using ManufacturingOffice.Domain.Enums
+@inject IWorkOrderRepository WorkOrderRepo
+@inject IInventoryRepository InventoryRepo
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard - Manufacturing Office</PageTitle>
+
+<h1>Dashboard</h1>
+<p>Daily operations snapshot</p>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Active Orders</div>
+        <div class="kpi-value">@activeOrders</div>
+        <div class="kpi-trend positive">↑ 12% from last week</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">OEE</div>
+        <div class="kpi-value">85.2%</div>
+        <div class="kpi-trend positive">↑ 2.3%</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">Throughput</div>
+        <div class="kpi-value">1,240</div>
+        <div class="kpi-trend positive">↑ 8%</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">Low Stock Items</div>
+        <div class="kpi-value">@lowStockCount</div>
+        <div class="kpi-trend negative">⚠️ Needs attention</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Active Work Orders</div>
+    
+    @if (workOrders == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Part</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Progress</th>
+                    <th>Due Date</th>
+                    <th>Work Center</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in workOrders)
+                {
+                    <tr>
+                        <td>@order.OrderNumber</td>
+                        <td>
+                            <div>@order.PartNumber</div>
+                            <div style="color: var(--text-secondary); font-size: 0.75rem;">@order.PartDescription</div>
+                        </td>
+                        <td><span class="status-badge @GetStatusClass(order.Status)">@order.Status</span></td>
+                        <td><span class="@GetPriorityClass(order.Priority)">@order.Priority</span></td>
+                        <td>@order.CompletedQuantity / @order.Quantity</td>
+                        <td>@order.DueDate.ToString("MMM dd, yyyy")</td>
+                        <td>@order.WorkCenter</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header">Alerts & Notifications</div>
+    <ul>
+        <li style="color: var(--danger);">WO-2026-004 - Material shortage: Waiting for bearings</li>
+        <li style="color: var(--warning);">@lowStockCount inventory items below reorder point</li>
+        <li style="color: var(--success);">WO-2026-003 completed ahead of schedule</li>
+    </ul>
+</div>
+
+@code {
+    private IEnumerable<WorkOrder>? workOrders;
+    private int activeOrders;
+    private int lowStockCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allOrders = await WorkOrderRepo.GetAllAsync();
+        workOrders = allOrders.Where(w => w.Status == WorkOrderStatus.InProgress || w.Status == WorkOrderStatus.Released).Take(5);
+        activeOrders = workOrders.Count();
+        
+        var lowStockItems = await InventoryRepo.GetLowStockItemsAsync();
+        lowStockCount = lowStockItems.Count();
+    }
+
+    private string GetStatusClass(WorkOrderStatus status)
+    {
+        return status switch
+        {
+            WorkOrderStatus.Completed => "success",
+            WorkOrderStatus.InProgress => "info",
+            WorkOrderStatus.Paused => "warning",
+            WorkOrderStatus.Cancelled => "danger",
+            _ => "neutral"
+        };
+    }
+
+    private string GetPriorityClass(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.Critical => "priority-critical",
+            Priority.High => "priority-high",
+            Priority.Low => "priority-low",
+            _ => "priority-normal"
+        };
+    }
+}
