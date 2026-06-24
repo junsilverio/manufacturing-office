@@ -1,0 +1,136 @@
+﻿@page "/inventory"
+@using ManufacturingOffice.Application.Interfaces
+@using ManufacturingOffice.Domain.Entities
+@inject IInventoryRepository InventoryRepo
+@rendermode InteractiveServer
+
+<PageTitle>Inventory - Manufacturing Office</PageTitle>
+
+<h1>Inventory & Materials</h1>
+<p>Material availability and stock management</p>
+
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">Total Items</div>
+        <div class="kpi-value">@totalItems</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">On Hand</div>
+        <div class="kpi-value">@totalOnHand</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">Reserved</div>
+        <div class="kpi-value">@totalReserved</div>
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-label">In Transit</div>
+        <div class="kpi-value">@totalInTransit</div>
+    </div>
+</div>
+
+<div style="margin-bottom: 1.5rem;">
+    <button class="btn btn-primary">+ Add Item</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Import</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Export</button>
+    <button class="btn btn-secondary" style="margin-left: 0.5rem;">Reorder Report</button>
+</div>
+
+<div class="card">
+    <div class="card-header">Stock Overview</div>
+    
+    @if (inventoryItems == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Description</th>
+                    <th>On Hand</th>
+                    <th>Reserved</th>
+                    <th>Available</th>
+                    <th>In Transit</th>
+                    <th>Reorder Point</th>
+                    <th>Location</th>
+                    <th>Bin</th>
+                    <th>Unit Cost</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in inventoryItems)
+                {
+                    <tr>
+                        <td><strong>@item.SKU</strong></td>
+                        <td>@item.Description</td>
+                        <td>@item.OnHand @item.UnitOfMeasure</td>
+                        <td>@item.Reserved @item.UnitOfMeasure</td>
+                        <td><strong>@item.Available @item.UnitOfMeasure</strong></td>
+                        <td>@item.InTransit @item.UnitOfMeasure</td>
+                        <td>@item.ReorderPoint @item.UnitOfMeasure</td>
+                        <td>@item.Location</td>
+                        <td>@item.Bin</td>
+                        <td>$@item.UnitCost.ToString("F2")</td>
+                        <td>
+                            @if (item.Available <= item.ReorderPoint)
+                            {
+                                <span class="status-badge warning">Low Stock</span>
+                            }
+                            else if (item.Available == 0)
+                            {
+                                <span class="status-badge danger">Out of Stock</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge success">In Stock</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (lowStockItems != null && lowStockItems.Any())
+{
+    <div class="card">
+        <div class="card-header">Reorder Recommendations</div>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">The following items are at or below their reorder point:</p>
+        <ul>
+            @foreach (var item in lowStockItems)
+            {
+                <li style="margin-bottom: 0.5rem;">
+                    <strong>@item.SKU</strong> - @item.Description 
+                    <span style="color: var(--warning);">(Available: @item.Available, Reorder Point: @item.ReorderPoint)</span>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private IEnumerable<InventoryItem>? inventoryItems;
+    private IEnumerable<InventoryItem>? lowStockItems;
+    private int totalItems;
+    private int totalOnHand;
+    private int totalReserved;
+    private int totalInTransit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        inventoryItems = await InventoryRepo.GetAllAsync();
+        lowStockItems = await InventoryRepo.GetLowStockItemsAsync();
+        
+        totalItems = inventoryItems.Count();
+        totalOnHand = inventoryItems.Sum(i => i.OnHand);
+        totalReserved = inventoryItems.Sum(i => i.Reserved);
+        totalInTransit = inventoryItems.Sum(i => i.InTransit);
+    }
+}
